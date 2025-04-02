@@ -19,7 +19,7 @@ export default function Home() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
-  const [isClient, setIsClient] = useState(false);
+  //const [isClient, setIsClient] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [userEmail, setUserEmail] = useState("");
@@ -67,9 +67,9 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [router]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     setIsClient(true);
-  }, []);
+  }, []);*/
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
@@ -144,7 +144,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 p-4">
       <header className="bg-white shadow-sm p-4 flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold">The Runner's Mood Tracker</h1>
+        <h1 className="text-xl font-bold">The Runner&apos;s Mood Tracker</h1>
         <div className="flex items-center gap-4">
           <span className="text-gray-600">{userEmail}</span>
           <button 

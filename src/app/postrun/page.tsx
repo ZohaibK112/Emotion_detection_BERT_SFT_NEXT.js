@@ -251,7 +251,7 @@ export default function Home() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
-  const [isClient, setIsClient] = useState(false);
+  //const [isClient, setIsClient] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [userEmail, setUserEmail] = useState("");
@@ -299,9 +299,9 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [router]);
 
-  useEffect(() => {
+ /* useEffect(() => {
     setIsClient(true);
-  }, []);
+  }, []);*/
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
