@@ -65,9 +65,14 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Define OTP Store type
 type OTPStore = Record<string, { otp: string; expiresAt: number }>;
 
-// Ensure globalThis.otpStore is properly typed
-if (!("otpStore" in globalThis)) {
-  (globalThis as any).otpStore = {} as OTPStore;
+// Ensure global declaration for otpStore
+declare global {
+  var otpStore: OTPStore | undefined;
+}
+
+// ✅ Initialize globalThis.otpStore safely
+if (!globalThis.otpStore) {
+  globalThis.otpStore = {};
 }
 
 export async function POST(req: NextRequest) {
@@ -78,24 +83,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    // Generate a new 6-digit OTP
+    // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
     // OTP expires in 10 minutes
     const expiresAt = Date.now() + 10 * 60 * 1000;
-    
-    // Store OTP for the email
-    (globalThis as any).otpStore[email] = { otp, expiresAt };
+
+    // ✅ Ensure otpStore exists before setting a value
+    if (!globalThis.otpStore) {
+      globalThis.otpStore = {};
+    }
+
+    // ✅ Assign OTP safely
+    globalThis.otpStore[email] = { otp, expiresAt };
 
     // Send email using Resend
     const response = await resend.emails.send({
-      from: "Verification <onboarding@resend.dev>", // Use your verified domain in production
+      from: "Verification <onboarding@resend.dev>", 
       to: [email],
-      subject: "Your New Verification Code",
+      subject: "Your Verification Code",
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Email Verification</h2>
-          <p>Your new verification code is:</p>
+          <p>Your verification code is:</p>
           <div style="background-color: #f4f4f4; padding: 12px; font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 5px; margin: 20px 0;">
             ${otp}
           </div>
@@ -110,7 +120,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, message: "New OTP sent successfully" });
+    return NextResponse.json({ success: true, message: "OTP sent successfully" });
   } catch (error) {
     console.error("Error in resend-otp API:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
