@@ -7,13 +7,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Define OTP Store type
 type OTPStore = Record<string, { otp: string; expiresAt: number }>;
 
-// Ensure global.otpStore is declared and initialized correctly
-declare global {
-  var otpStore: OTPStore | undefined;
+// Ensure globalThis.otpStore is properly initialized
+if (!("otpStore" in globalThis)) {
+  (globalThis as any).otpStore = {} as OTPStore;
 }
-
-// Initialize the OTP store if not already set
-global.otpStore = global.otpStore || {};
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,13 +26,8 @@ export async function POST(req: NextRequest) {
     // OTP expires in 10 minutes
     const expiresAt = Date.now() + 10 * 60 * 1000;
     
-    // Ensure otpStore exists before assigning values
-    if (!global.otpStore) {
-      global.otpStore = {};  // Initialize if not set
-    }
-
-    // Store the OTP
-    global.otpStore[email] = { otp, expiresAt };
+    // Store OTP for the email
+    (globalThis as any).otpStore[email] = { otp, expiresAt };
 
     // Send email using Resend
     const { error } = await resend.emails.send({
