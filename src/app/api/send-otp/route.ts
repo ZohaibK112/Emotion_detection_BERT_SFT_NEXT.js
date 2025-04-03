@@ -7,9 +7,14 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Define OTP Store type
 type OTPStore = Record<string, { otp: string; expiresAt: number }>;
 
+// Define global augmentation for TypeScript
+declare global {
+  var otpStore: OTPStore | undefined;
+}
+
 // Ensure globalThis.otpStore is properly initialized
-if (!("otpStore" in globalThis)) {
-  (globalThis as any).otpStore = {} as OTPStore;
+if (!globalThis.otpStore) {
+  globalThis.otpStore = {};
 }
 
 export async function POST(req: NextRequest) {
@@ -27,7 +32,10 @@ export async function POST(req: NextRequest) {
     const expiresAt = Date.now() + 10 * 60 * 1000;
     
     // Store OTP for the email
-    (globalThis as any).otpStore[email] = { otp, expiresAt };
+    if (!globalThis.otpStore) {
+      globalThis.otpStore = {};
+    }
+    globalThis.otpStore[email] = { otp, expiresAt };
 
     // Send email using Resend
     const { error } = await resend.emails.send({
