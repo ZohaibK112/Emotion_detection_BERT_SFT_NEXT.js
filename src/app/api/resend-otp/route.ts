@@ -70,8 +70,10 @@ declare global {
   var otpStore: OTPStore | undefined;
 }
 
-// Ensure otpStore is initialized on the global object
-globalThis.otpStore = globalThis.otpStore || {};
+// Initialize otpStore if not already initialized
+if (!globalThis.otpStore) {
+  globalThis.otpStore = {};
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -87,9 +89,9 @@ export async function POST(req: NextRequest) {
     // OTP expires in 10 minutes
     const expiresAt = Date.now() + 10 * 60 * 1000;
     
-    // Explicitly ensure otpStore is defined
+    // Ensure otpStore is initialized before assignment
     if (!globalThis.otpStore) {
-      globalThis.otpStore = {};
+      globalThis.otpStore = {};  // Initialize if it's undefined
     }
 
     // Store OTP for the email

@@ -25,7 +25,8 @@ export default function EmailOTP() {
 
       const data = await response.json();
       return { success: response.ok, data };
-    } catch (error) {
+    } catch (err) {
+      console.error("API request failed:", err); // Log the error
       return { success: false, data: { error: "Something went wrong!" } };
     }
   };
@@ -63,7 +64,6 @@ export default function EmailOTP() {
       setTimeout(() => {
         router.push("/Buttons");  // Use the correct path to the button selection page
       }, 2000);
-      
     } else {
       setMessage({ text: data.error || "Invalid OTP", type: "error" });
     }

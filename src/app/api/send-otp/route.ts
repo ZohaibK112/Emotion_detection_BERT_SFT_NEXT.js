@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     
     // Ensure otpStore exists before assigning values
     if (!global.otpStore) {
-      global.otpStore = {};
+      global.otpStore = {};  // Initialize if not set
     }
 
     // Store the OTP
