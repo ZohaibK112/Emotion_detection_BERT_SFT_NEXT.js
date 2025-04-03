@@ -376,7 +376,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 p-4">
       <header className="bg-white shadow-sm p-4 flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold">The Runner's Mood Tracker</h1>
+        <h1 className="text-xl font-bold">The Runner&apos;s Mood Tracker</h1>
         <div className="flex items-center gap-4">
           <span className="text-gray-600">{userEmail}</span>
           <button 

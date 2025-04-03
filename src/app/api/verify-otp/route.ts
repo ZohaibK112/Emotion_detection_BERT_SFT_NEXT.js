@@ -1,59 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Declare global type for the OTP store
-declare global {
-  var otpStore: Record<string, { otp: string; expiresAt: number }>;
-}
+// Declare a temporary in-memory store (use Redis or DB in production)
+const otpStore: Record<string, { otp: string; expiresAt: number }> = {};
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, otp } = await req.json();
+    const { email } = await req.json();
 
-    if (!email || !otp) {
-      return NextResponse.json(
-        { error: "Email and OTP are required" },
-        { status: 400 }
-      );
+    // Validate the incoming request
+    if (!email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    const storedData = global.otpStore[email];
+    // Generate OTP (6 digits)
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes expiry time
 
-    if (!storedData) {
-      return NextResponse.json(
-        { error: "No OTP found for this email" },
-        { status: 400 }
-      );
-    }
+    // Store OTP in the store
+    otpStore[email] = { otp, expiresAt };
 
-    if (Date.now() > storedData.expiresAt) {
-      // Clean up expired OTP
-      delete global.otpStore[email];
-      return NextResponse.json(
-        { error: "OTP has expired" },
-        { status: 400 }
-      );
-    }
+    // Log OTP Store for debugging
+    console.log("OTP stored:", otpStore);
 
-    if (storedData.otp !== otp) {
-      return NextResponse.json(
-        { error: "Invalid OTP" },
-        { status: 400 }
-      );
-    }
-
-    // OTP is valid - clean up after successful verification
-    delete global.otpStore[email];
+    // Send OTP to email (simulated for now)
+    // Replace this with your actual email-sending logic
+    console.log(`Sending OTP ${otp} to ${email}`);
 
     // Return success response
     return NextResponse.json({
       success: true,
-      message: "Email verified successfully",
+      message: "OTP sent successfully",
     });
   } catch (error) {
-    console.error("Error in verify-otp API:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Error in send-otp API:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

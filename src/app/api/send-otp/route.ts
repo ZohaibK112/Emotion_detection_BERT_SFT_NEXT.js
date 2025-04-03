@@ -4,18 +4,16 @@ import { Resend } from "resend";
 // Initialize Resend with your API key
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Store OTPs temporarily (in a real app, use a database)
+// Define OTP Store type
 type OTPStore = Record<string, { otp: string; expiresAt: number }>;
 
-// Use global object to persist data between API calls (for development only)
-// In production, use a database instead
+// Ensure global.otpStore is declared and initialized correctly
 declare global {
-  var otpStore: OTPStore;
+  var otpStore: OTPStore | undefined;
 }
 
-if (!global.otpStore) {
-  global.otpStore = {};
-}
+// Initialize the OTP store if not already set
+global.otpStore = global.otpStore || {};
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,11 +29,16 @@ export async function POST(req: NextRequest) {
     // OTP expires in 10 minutes
     const expiresAt = Date.now() + 10 * 60 * 1000;
     
+    // Ensure otpStore exists before assigning values
+    if (!global.otpStore) {
+      global.otpStore = {};
+    }
+
     // Store the OTP
     global.otpStore[email] = { otp, expiresAt };
 
     // Send email using Resend
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: "Verification <onboarding@resend.dev>", // Use your verified domain in production
       to: [email],
       subject: "Your Verification Code",
