@@ -7,14 +7,20 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Define OTP Store type
 type OTPStore = Record<string, { otp: string; expiresAt: number }>;
 
-// Define global augmentation for TypeScript
-declare global {
-  var otpStore: OTPStore | undefined;
+// Define a safer alternative to global declaration
+interface CustomGlobal {
+  otpStore: OTPStore;
 }
 
-// Ensure globalThis.otpStore is properly initialized
-if (!globalThis.otpStore) {
-  globalThis.otpStore = {};
+// Create a type-safe global store
+const globalStore: CustomGlobal = 
+  (globalThis as unknown as CustomGlobal).otpStore ? 
+  (globalThis as unknown as CustomGlobal) : 
+  { otpStore: {} };
+
+// Initialize the store if needed
+if (!globalStore.otpStore) {
+  globalStore.otpStore = {};
 }
 
 export async function POST(req: NextRequest) {
@@ -31,15 +37,12 @@ export async function POST(req: NextRequest) {
     // OTP expires in 10 minutes
     const expiresAt = Date.now() + 10 * 60 * 1000;
     
-    // Store OTP for the email
-    if (!globalThis.otpStore) {
-      globalThis.otpStore = {};
-    }
-    globalThis.otpStore[email] = { otp, expiresAt };
+    // Store OTP for the email using the safe global store
+    globalStore.otpStore[email] = { otp, expiresAt };
 
     // Send email using Resend
     const { error } = await resend.emails.send({
-      from: "Verification <onboarding@resend.dev>", // Use your verified domain in production
+      from: "Verification <onboarding@resend.dev>",
       to: [email],
       subject: "Your Verification Code",
       html: `
