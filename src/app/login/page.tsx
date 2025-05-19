@@ -136,7 +136,7 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_LOGIN_URL}`, {
         method: 'POST',
         credentials: 'include',      // include cookies
         headers: { 'Content-Type': 'application/json' },
