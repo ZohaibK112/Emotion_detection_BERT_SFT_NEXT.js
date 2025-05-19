@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
       .request({
         Messages: [
           {
-            From: { Email: MAILJET_SENDER_EMAIL, Name: 'Your App Name' },
+            From: { Email: MAILJET_SENDER_EMAIL, Name: 'The Runners' },
             To:   [{ Email: email }],
             Subject: 'Your Verification Code',
             TextPart: `Your OTP is ${otp}. It expires in 10 minutes.`,

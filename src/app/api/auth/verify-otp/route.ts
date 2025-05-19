@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   // 1) Forward the incoming body to FastAPI
   const bodyText = await request.text();
   const res = await fetch(
-    `https://emotion-detection-bert-sft-next-js.vercel.app/api/auth/verify-otp`,
+    `https://zohaibk112-the-runners-bert-emotions.hf.space/api/auth/verify-otp`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
