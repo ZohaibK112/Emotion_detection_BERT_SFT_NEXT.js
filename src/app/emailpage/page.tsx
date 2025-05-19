@@ -1,108 +1,136 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function EmailOTP() {
   const router = useRouter();
-  const [email, setEmail] = useState<string>("");
-  const [otp, setOtp] = useState<string>("");
-  const [otpSent, setOtpSent] = useState<boolean>(false);
-  const [message, setMessage] = useState<{ text: string; type: "success" | "error" | "" }>({
+  const [email, setEmail]             = useState("");
+  const [otp, setOtp]                 = useState("");
+  const [otpSent, setOtpSent]         = useState(false);
+  const [loading, setLoading]         = useState(false);
+  const [message, setMessage]         = useState<{ text: string; type: "success" | "error" | "" }>({
     text: "",
     type: "",
   });
 
-  const isValidEmail = (email: string): boolean => /\S+@\S+\.\S+/.test(email);
+  const isValidEmail = (e: string) => /\S+@\S+\.\S+/.test(e);
 
-  const fetchApi = async (url: string, payload: object) => {
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-      return { success: response.ok, data };
-    } catch (err) {
-      console.error("API request failed:", err); // Log the error
-      return { success: false, data: { error: "Something went wrong!" } };
-    }
-  };
-
-  const handleSendOtp = async () => {
+  async function sendOtp() {
     if (!isValidEmail(email)) {
       setMessage({ text: "Please enter a valid email.", type: "error" });
       return;
     }
+    setLoading(true);
+    setMessage({ text: "", type: "" });
 
-    const { success, data } = await fetchApi("/api/send-otp", { email });
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
 
-    if (success) {
-      setOtpSent(true);
-      setMessage({ text: "OTP sent successfully!", type: "success" });
-    } else {
-      setMessage({ text: data.error || "Failed to send OTP", type: "error" });
+      if (res.ok && data.success) {
+        setOtpSent(true);
+        setMessage({ text: "OTP sent successfully! Check your email.", type: "success" });
+        localStorage.setItem("otpToken", data.token);
+      } else {
+        setMessage({ text: data.error || "Failed to send OTP.", type: "error" });
+      }
+    } catch (err) {
+      console.error("Send OTP error:", err);
+      setMessage({ text: "Network error. Please try again.", type: "error" });
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
-  const handleVerifyOtp = async () => {
-    if (!otp) {
+  async function verifyOtp() {
+    if (!otp.trim()) {
       setMessage({ text: "Please enter the OTP.", type: "error" });
       return;
     }
-
-    const { success, data } = await fetchApi("/api/verify-otp", { email, otp });
-
-    if (success) {
-      setMessage({ text: "OTP verified! Redirecting...", type: "success" });
-
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userEmail", email);
-
-      setTimeout(() => {
-        router.push("/Buttons");  // Use the correct path to the button selection page
-      }, 2000);
-    } else {
-      setMessage({ text: data.error || "Invalid OTP", type: "error" });
+    const token = localStorage.getItem("otpToken");
+    if (!token) {
+      setMessage({ text: "OTP session expired. Please request a new one.", type: "error" });
+      setOtpSent(false);
+      return;
     }
-  };
+
+    setLoading(true);
+    setMessage({ text: "", type: "" });
+
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        credentials: "include",  // accept Set-Cookie
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp, token }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        localStorage.removeItem("otpToken");
+        setMessage({ text: "OTP verified! Redirecting…", type: "success" });
+        setTimeout(() => router.replace("/buttons"), 1000);
+      } else {
+        setMessage({ text: data.error || "Invalid OTP.", type: "error" });
+      }
+    } catch (err) {
+      console.error("Verify OTP error:", err);
+      setMessage({ text: "Network error. Please try again.", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4 text-center">Email Verification</h2>
 
-        <label className="block text-sm font-medium text-gray-700">Email Address</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
         <input
           type="email"
-          placeholder="Enter your email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded-md mb-3"
-          disabled={otpSent}
+          onChange={e => setEmail(e.target.value)}
+          disabled={otpSent || loading}
+          className="w-full p-2 border rounded-md mb-4"
         />
 
-        {!otpSent && (
-          <button onClick={handleSendOtp} className="w-full py-2 bg-blue-600 text-white rounded-md">
-            Send OTP
+        {!otpSent ? (
+          <button
+            onClick={sendOtp}
+            disabled={loading}
+            className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+          >
+            {loading ? "Sending…" : "Send OTP"}
           </button>
-        )}
-
-        {otpSent && (
+        ) : (
           <>
-            <label className="block text-sm font-medium text-gray-700">Enter OTP</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Enter OTP</label>
             <input
               type="text"
-              placeholder="Enter OTP"
               value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              className="w-full p-2 border rounded-md mb-3"
+              onChange={e => setOtp(e.target.value)}
+              disabled={loading}
+              className="w-full p-2 border rounded-md mb-4"
             />
-
-            <button onClick={handleVerifyOtp} className="w-full py-2 bg-green-600 text-white rounded-md">
-              Verify OTP
+            <button
+              onClick={verifyOtp}
+              disabled={loading}
+              className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition mb-2"
+            >
+              {loading ? "Verifying…" : "Verify OTP"}
+            </button>
+            <button
+              onClick={sendOtp}
+              disabled={loading}
+              className="w-full py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+            >
+              {loading ? "Resending…" : "Resend OTP"}
             </button>
           </>
         )}
