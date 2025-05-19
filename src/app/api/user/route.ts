@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized – no token' }, { status: 401 });
   }
 
-  const apiRes = await fetch(`${BACKEND}/user/profile`, {
+  const apiRes = await fetch(`${BACKEND}https://zohaibk112-the-runners-bert-emotions.hf.space/user/profile`, {
     method: 'GET',
     headers: {
       'Content-Type':  'application/json',
