@@ -17,7 +17,7 @@ import {
   Cell,
 } from 'recharts';
 
-const BACKEND = 'http://localhost:8000';
+const BACKEND = 'https://zohaibk112-the-runners-bert-emotions.hf.space/';
 
 type ResponseItem = {
   text: string;
