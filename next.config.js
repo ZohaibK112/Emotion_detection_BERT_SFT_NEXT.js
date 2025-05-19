@@ -2,7 +2,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    // WARNING: temporarily ignore ESLint errors during builds
+    // Skip ESLint errors in production builds
     ignoreDuringBuilds: true,
   },
 };
