@@ -15,7 +15,7 @@ export default function ButtonsPage() {
     async function loadUser() {
       try {
         // 1) Try fetch /api/user with cookie
-        const res = await fetch('https://zohaibk112-the-runners-bert-emotions.hf.space/api/user', { credentials: 'include' });
+        const res = await fetch('/api/user', { credentials: 'include' });
         if (res.status === 401) {
           // Not logged in – go to login
           router.replace('/login');

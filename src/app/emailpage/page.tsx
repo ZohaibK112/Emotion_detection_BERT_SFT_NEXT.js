@@ -25,7 +25,7 @@ export default function EmailOTP() {
     setMessage({ text: "", type: "" });
 
     try {
-      const res = await fetch("/api/auth/send-otp", {
+      const res = await fetch("https://zohaibk112-the-runners-bert-emotions.hf.space/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -63,7 +63,7 @@ export default function EmailOTP() {
     setMessage({ text: "", type: "" });
 
     try {
-      const res = await fetch("/api/auth/verify-otp", {
+      const res = await fetch("https://zohaibk112-the-runners-bert-emotions.hf.space/api/auth/verify-otp", {
         method: "POST",
         credentials: "include",  // accept Set-Cookie
         headers: { "Content-Type": "application/json" },
