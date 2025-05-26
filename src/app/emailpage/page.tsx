@@ -163,7 +163,7 @@ export default function EmailOTP() {
   });
 
   // use your env var here
-  const API = process.env.BACKEND_URL!;
+  const API = process.env.NEXT_BACKEND_URL!;
 
   const isValidEmail = (e: string) => /\S+@\S+\.\S+/.test(e);
 
