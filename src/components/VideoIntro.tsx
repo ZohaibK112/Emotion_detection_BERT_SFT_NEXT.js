@@ -12,7 +12,7 @@ export default function VideoIntro() {
     if (videoRef.current) {
       videoRef.current.play().catch(() => {
         setVideoError(true);
-        setTimeout(() => router.push("/signup"), 1000); // Navigate to button.tsx page
+        setTimeout(() => router.push("/signup"), 2000); // Navigate to button.tsx page
       });
     }
   }, [router]);
@@ -27,7 +27,7 @@ export default function VideoIntro() {
           className="video-logo max-w-full max-h-full"
           autoPlay
           muted
-          onEnded={() => setTimeout(() => router.push("/signup"), 500)} // Navigate after video ends
+          onEnded={() => setTimeout(() => router.push("/signup"), 2000)} // Navigate after video ends
           onError={() => setVideoError(true)}
         >
           <source src="/logo.mp4" type="video/mp4" />
