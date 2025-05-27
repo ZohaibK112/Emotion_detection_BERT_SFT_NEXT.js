@@ -85,16 +85,19 @@ export default function ButtonsPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser]       = useState<User | null>(null);
 
-  // Build your API URL, stripping any trailing slash
+  // Grab your backend root from env and strip trailing slashes
   const raw = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
   const API = raw.replace(/\/+$/, '');
 
   useEffect(() => {
     async function loadUser() {
       try {
+        // 1) Call your FastAPI /user/profile
         const res = await fetch(`${API}/user/profile`, {
-          credentials: 'include',
+          credentials: 'include',   // send the auth cookie
         });
+
+        // 2) If not logged in, go to login
         if (res.status === 401) {
           router.replace('/login');
           return;
@@ -102,8 +105,11 @@ export default function ButtonsPage() {
         if (!res.ok) {
           throw new Error(`Unexpected status ${res.status}`);
         }
+
+        // 3) Got the user
         const data: User = await res.json();
         setUser(data);
+
       } catch (err) {
         console.error('Auth check failed on ButtonsPage:', err);
         router.replace('/login');
