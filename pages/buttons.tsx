@@ -15,18 +15,15 @@ export default function ButtonsPage() {
     async function loadUser() {
       try {
         const res = await fetch('/api/user', {
-          credentials: 'include',  // send the access_token cookie
+          credentials: 'include',
         });
-
         if (res.status === 401) {
-          // not authenticated, go to login
           router.replace('/login');
           return;
         }
         if (!res.ok) {
           throw new Error(`Unexpected status ${res.status}`);
         }
-
         const data: User = await res.json();
         setUser(data);
       } catch (err) {
@@ -49,24 +46,24 @@ export default function ButtonsPage() {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold mb-2">
+      <h1 className="text-3xl font-bold mb-4">
         Welcome{user?.name ? `, ${user.name}` : ''}!
       </h1>
       <p className="text-gray-700 mb-6">Select your run phase:</p>
 
       <div className="flex flex-col space-y-4 w-full max-w-xs">
         <Link href="/home">
-          <button className="w-full py-3 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <button className="w-full py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
             Pre Run
           </button>
         </Link>
         <Link href="/postrun">
-          <button className="w-full py-3 bg-green-500 text-white rounded hover:bg-green-600">
+          <button className="w-full py-3 bg-green-500 text-white rounded hover:bg-green-600 transition">
             Post Run
           </button>
         </Link>
         <Link href="/weeklyanalysis">
-          <button className="w-full py-3 bg-purple-500 text-white rounded hover:bg-purple-600">
+          <button className="w-full py-3 bg-purple-500 text-white rounded hover:bg-purple-600 transition">
             Weekly Analysis
           </button>
         </Link>
