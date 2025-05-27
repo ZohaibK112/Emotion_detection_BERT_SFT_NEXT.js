@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/navigation';
 import Link                     from 'next/link';
@@ -12,36 +11,19 @@ export default function ButtonsPage() {
   const [user, setUser]       = useState<User | null>(null);
 
   useEffect(() => {
-    async function loadUser() {
-      try {
-        const res = await fetch('/api/user', {
-          credentials: 'include',
-        });
-        if (res.status === 401) {
-          router.replace('/login');
-          return;
-        }
-        if (!res.ok) {
-          throw new Error(`Unexpected status ${res.status}`);
-        }
-        const data: User = await res.json();
-        setUser(data);
-      } catch (err) {
-        console.error('Auth check failed on ButtonsPage:', err);
-        router.replace('/login');
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadUser();
+    fetch('/api/user', { credentials: 'include' })
+      .then(res => {
+        if (res.status === 401) throw new Error('Unauthorized');
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        return res.json();
+      })
+      .then((data: User) => setUser(data))
+      .catch(() => router.replace('/login'))
+      .finally(() => setLoading(false));
   }, [router]);
 
   if (loading) {
-    return (
-      <main className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-600">Loading…</p>
-      </main>
-    );
+    return <p className="text-gray-600">Loading…</p>;
   }
 
   return (
@@ -50,20 +32,19 @@ export default function ButtonsPage() {
         Welcome{user?.name ? `, ${user.name}` : ''}!
       </h1>
       <p className="text-gray-700 mb-6">Select your run phase:</p>
-
       <div className="flex flex-col space-y-4 w-full max-w-xs">
         <Link href="/home">
-          <button className="w-full py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+          <button className="w-full py-3 bg-blue-500 text-white rounded hover:bg-blue-600">
             Pre Run
           </button>
         </Link>
         <Link href="/postrun">
-          <button className="w-full py-3 bg-green-500 text-white rounded hover:bg-green-600 transition">
+          <button className="w-full py-3 bg-green-500 text-white rounded hover:bg-green-600">
             Post Run
           </button>
         </Link>
         <Link href="/weeklyanalysis">
-          <button className="w-full py-3 bg-purple-500 text-white rounded hover:bg-purple-600 transition">
+          <button className="w-full py-3 bg-purple-500 text-white rounded hover:bg-purple-600">
             Weekly Analysis
           </button>
         </Link>
