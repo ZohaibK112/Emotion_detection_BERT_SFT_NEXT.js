@@ -841,8 +841,58 @@ export default function WeeklyAnalysis() {
               </motion.div>
             </section>
 
-            {/* Mood Over Time Chart */}…
-            {/* Entries List … */}
+             {/* Mood Over Time Chart */}
+            <AnimatePresence mode="wait">
+               <motion.div
+                 key={phase + selectedDate}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.5 }}
+                className="mb-8"
+              >
+                <h2 className="text-2xl mb-4 text-center">Mood Over Time</h2>
+                {display.length === 0 ? (
+                  <div className="text-center py-8 text-gray-700">No entries for this day.</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <ScatterChart margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="time"
+                        type="number"
+                        domain={["dataMin", "dataMax"]}
+                        scale="time"
+                        tickFormatter={u => new Date(u).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      />
+                      <YAxis dataKey="score" domain={[0, 10]} ticks={[0,2,4,6,8,10]} />
+                      <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+                      <Legend verticalAlign="top" height={36} />
+                      <Scatter data={display} fill={phase === 'post' ? '#82ca9d' : '#8884d8'} isAnimationActive animationBegin={200} animationDuration={800} animationEasing="ease-out" />
+                    </ScatterChart>
+                  </ResponsiveContainer>
+                )}
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Entries List */}
+            <section>
+              <h2 className="text-2xl mb-4 text-center">Entries</h2>
+              {filtered.length === 0 ? (
+                <div className="text-center py-8 text-gray-700">No entries for this day.</div>
+              ) : (
+                <AnimatePresence>
+                  <motion.div className="space-y-4" variants={listVariants} initial="hidden" animate="visible" exit="hidden">
+                    {filtered.map((e, i) => (
+                      <motion.div key={`${e.timestamp}-${i}`} className="border p-4 rounded bg-white" variants={itemVariants}>
+                        <p className="font-medium">{new Date(e.timestamp).toLocaleString()}: <strong>{e.emotion}</strong> ({e.score}/10)</p>
+                        <p className="text-sm text-gray-600 mt-1">{e.text}</p>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </AnimatePresence>
+              )}
+            </section>
           </>
         )}
       </main>
