@@ -21,8 +21,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST() {
   const res = NextResponse.json({ success: true }, { status: 200 });
-
-  // Clear the HTTP-only access_token cookie
+  // Must match the cookie name your backend sets!
   res.cookies.set('access_token', '', {
     httpOnly: true,
     path: '/',
@@ -30,6 +29,6 @@ export async function POST() {
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     secure: process.env.NODE_ENV === 'production',
   });
-
   return res;
 }
+

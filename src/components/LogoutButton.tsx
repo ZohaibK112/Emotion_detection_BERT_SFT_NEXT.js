@@ -17,7 +17,7 @@ export default function LogoutButton() {
       localStorage.removeItem("user");
       localStorage.removeItem("isAuthenticated");
       
-      router.push("/login");
+      router.replace("/login");
     } catch (error) {
       console.error("Logout error:", error);
     }
