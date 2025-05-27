@@ -146,6 +146,7 @@
 // }
 
 
+
 'use client';
 
 import { useState } from "react";
@@ -162,8 +163,9 @@ export default function EmailOTP() {
     type: "",
   });
 
-  // use your env var here
-  const API = process.env.NEXT_PUBLIC_BACKEND_URL!;
+  // Pull from env and strip any trailing slash
+  const rawUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
+  const API = rawUrl.replace(/\/+$/, "");
 
   const isValidEmail = (e: string) => /\S+@\S+\.\S+/.test(e);
 
@@ -216,7 +218,7 @@ export default function EmailOTP() {
     try {
       const res = await fetch(`${API}/api/auth/verify-otp`, {
         method: "POST",
-        credentials: "include",  // accept Set-Cookie
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp, token }),
       });
@@ -295,3 +297,4 @@ export default function EmailOTP() {
     </div>
   );
 }
+
