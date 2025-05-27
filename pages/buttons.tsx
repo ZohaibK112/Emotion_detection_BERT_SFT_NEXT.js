@@ -15,7 +15,7 @@ export default function ButtonsPage() {
     async function loadUser() {
       try {
         // proxy through Next.js API route pages/api/profile.ts
-        const res = await fetch('/api/profile', {
+        const res = await fetch('/api/user', {
           credentials: 'include',
         });
         if (res.status === 401) {

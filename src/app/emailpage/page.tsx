@@ -154,18 +154,14 @@ import { useRouter } from "next/navigation";
 
 export default function EmailOTP() {
   const router = useRouter();
-  const [email, setEmail]             = useState("");
-  const [otp, setOtp]                 = useState("");
-  const [otpSent, setOtpSent]         = useState(false);
-  const [loading, setLoading]         = useState(false);
-  const [message, setMessage]         = useState<{ text: string; type: "success" | "error" | "" }>({
+  const [email, setEmail]           = useState("");
+  const [otp, setOtp]               = useState("");
+  const [otpSent, setOtpSent]       = useState(false);
+  const [loading, setLoading]       = useState(false);
+  const [message, setMessage]       = useState<{ text: string; type: "success" | "error" | "" }>({
     text: "",
     type: "",
   });
-
-  // Pull from env and strip any trailing slash
-  const rawUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
-  const API = rawUrl.replace(/\/+$/, "");
 
   const isValidEmail = (e: string) => /\S+@\S+\.\S+/.test(e);
 
@@ -178,7 +174,7 @@ export default function EmailOTP() {
     setMessage({ text: "", type: "" });
 
     try {
-      const res = await fetch(`${API}/api/auth/send-otp`, {
+      const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -216,9 +212,9 @@ export default function EmailOTP() {
     setMessage({ text: "", type: "" });
 
     try {
-      const res = await fetch(`${API}/api/auth/verify-otp`, {
+      const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
-        credentials: "include",
+        credentials: "include",  // accept Set-Cookie from proxy
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp, token }),
       });
