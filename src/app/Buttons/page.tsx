@@ -85,7 +85,7 @@ export default function ButtonsPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser]       = useState<User | null>(null);
 
-  // load and sanitize your backend URL
+  // Build your API URL, stripping any trailing slash
   const raw = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
   const API = raw.replace(/\/+$/, '');
 
@@ -96,7 +96,6 @@ export default function ButtonsPage() {
           credentials: 'include',
         });
         if (res.status === 401) {
-          // Not authenticated – back to login
           router.replace('/login');
           return;
         }
@@ -150,4 +149,5 @@ export default function ButtonsPage() {
     </main>
   );
 }
+
 
