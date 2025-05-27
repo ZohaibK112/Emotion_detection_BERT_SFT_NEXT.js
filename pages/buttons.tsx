@@ -14,17 +14,19 @@ export default function ButtonsPage() {
   useEffect(() => {
     async function loadUser() {
       try {
-        // proxy through Next.js API route pages/api/profile.ts
         const res = await fetch('/api/user', {
-          credentials: 'include',
+          credentials: 'include',  // send the access_token cookie
         });
+
         if (res.status === 401) {
+          // not authenticated, go to login
           router.replace('/login');
           return;
         }
         if (!res.ok) {
           throw new Error(`Unexpected status ${res.status}`);
         }
+
         const data: User = await res.json();
         setUser(data);
       } catch (err) {
