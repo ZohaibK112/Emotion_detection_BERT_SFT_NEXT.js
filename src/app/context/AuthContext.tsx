@@ -26,13 +26,15 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
+// pages that don’t require auth
 const PUBLIC_PAGES = ['/login', '/signup', '/emailpage'];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser]       = useState<User>(null);
   const [loading, setLoading] = useState(true);
   const router                = useRouter();
-  const pathname              = usePathname();
+  const rawPath               = usePathname();
+  const pathname              = rawPath ?? "";
 
   const refreshUserData = async () => {
     setLoading(true);
@@ -59,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const data = await res.json();
+      const data: User = await res.json();
       setUser(data);
     } catch (err) {
       console.error('refreshUserData failed:', err);
