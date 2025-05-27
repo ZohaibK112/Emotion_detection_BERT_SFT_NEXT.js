@@ -16,19 +16,21 @@
 
 //   return response;
 // }
-// app/api/logout/route.ts
-import { NextResponse } from 'next/server';
+
+
+// src/app/api/logout/route.ts
+import { NextResponse } from "next/server";
 
 export async function POST() {
+  // 1) Prepare a 200 JSON response
   const res = NextResponse.json({ success: true }, { status: 200 });
-  // Must match the cookie name your backend sets!
-  res.cookies.set('access_token', '', {
-    httpOnly: true,
-    path: '/',
-    expires: new Date(0),
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    secure: process.env.NODE_ENV === 'production',
-  });
+
+  // 2) Delete the HTTP-only cookie named "access_token"
+  res.cookies.delete("access_token");
+
   return res;
 }
+
+
+
 
