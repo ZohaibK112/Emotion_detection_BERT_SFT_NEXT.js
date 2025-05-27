@@ -19,17 +19,23 @@
 
 
 // src/app/api/logout/route.ts
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
 export async function POST() {
-  // 1) Prepare a 200 JSON response
   const res = NextResponse.json({ success: true }, { status: 200 });
 
-  // 2) Delete the HTTP-only cookie named "access_token"
-  res.cookies.delete("access_token");
+  // Explicitly overwrite the cookie with Max-Age=0, matching how it was set originally
+  res.cookies.set('access_token', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
+    maxAge: 0,
+  });
 
   return res;
 }
+
 
 
 
